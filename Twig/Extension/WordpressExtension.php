@@ -5,7 +5,6 @@ namespace Kayue\WordpressBundle\Twig\Extension;
 use Doctrine\ORM\EntityManager;
 use Kayue\WordpressBundle\Entity\Post;
 use Kayue\WordpressBundle\Entity\Taxonomy;
-use Kayue\WordpressBundle\Entity\User;
 use Kayue\WordpressBundle\Model\AttachmentManager;
 use Kayue\WordpressBundle\Model\BlogManager;
 use Kayue\WordpressBundle\Model\CommentManager;
@@ -111,6 +110,7 @@ class WordpressExtension extends \Twig_Extension
             'wp_find_one_attachment_by_id' => new \Twig_Function_Method($this, 'findOneAttachmentById'),
             'wp_find_featured_image_by_post' => new \Twig_Function_Method($this, 'findFeaturedImageByPost'),
             'wp_find_post_thumbnail' => new \Twig_Function_Method($this, 'findFeaturedImageByPost'),
+            'wp_find_post_video' => new \Twig_Function_Method($this, 'findFeaturedVideoByLink'),
             'wp_find_one_option_by_name' => new \Twig_Function_Method($this, 'findOneOptionByName'),
             'wp_find_one_post_by_id' => new \Twig_Function_Method($this, 'findOnePostById'),
             'wp_find_one_post_by_slug' => new \Twig_Function_Method($this, 'findOnePostBySlug'),
@@ -145,9 +145,14 @@ class WordpressExtension extends \Twig_Extension
         return $this->attachmentManager->findOneAttachmentById($id);
     }
 
-    public function findFeaturedImageByPost(Post $post)
+    public function findFeaturedImageByPost($post, $size)
     {
-        return $this->attachmentManager->findFeaturedImageByPost($post);
+        return $this->attachmentManager->findFeaturedImageByPost($post, $size);
+    }
+
+    public function findFeaturedVideoByLink($link)
+    {
+        return $this->attachmentManager->findFeaturedVideoByLink($link);
     }
 
     public function findOneOptionByName($id)
@@ -274,7 +279,7 @@ class WordpressExtension extends \Twig_Extension
      * line-breaks after conversion become <<br />> tags, unless $br is set to '0'
      * or 'false'.
      *
-     * @param  string $pee The text which has to be formatted.
+     * @param  string $pee The text which has to be formatted.        //$data[] = wp_find_one_attachment_by_id(49800);
      * @param  bool   $br  Optional. If set, this will convert all remaining line-breaks after paragraphing. Default true.
      * @return string Text which has been converted into correct paragraph tags.
      */

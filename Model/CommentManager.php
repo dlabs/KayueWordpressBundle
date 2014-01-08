@@ -4,20 +4,17 @@ namespace Kayue\WordpressBundle\Model;
 
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\DependencyInjection\Container;
 
-class CommentManager extends AbstractManager implements CommentManagerInterface
+class CommentManager implements CommentManagerInterface
 {
     protected $em;
     protected $repository;
     protected $class;
 
-    function __construct(Container $container, $class = 'Kayue\WordpressBundle\Entity\Comment')
+    function __construct(EntityManager $em, $class = 'Kayue\WordpressBundle\Entity\Comment')
     {
-        parent::__construct($container);
-
-        $this->em = $this->getEntityManager();
-        $this->repository = $this->em->getRepository('KayueWordpressBundle:Comment');
+        $this->em = $em;
+        $this->repository = $em->getRepository('KayueWordpressBundle:Comment');
         $this->class = $class;
     }
 

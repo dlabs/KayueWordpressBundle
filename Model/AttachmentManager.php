@@ -4,9 +4,8 @@ namespace Kayue\WordpressBundle\Model;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\DependencyInjection\Container;
 
-class AttachmentManager extends AbstractManager implements AttachmentManagerInterface
+class AttachmentManager //implements AttachmentManagerInterface
 {
     /**
      * @var EntityManager
@@ -25,13 +24,11 @@ class AttachmentManager extends AbstractManager implements AttachmentManagerInte
      *
      * @param EntityManager     $em
      */
-    public function __construct(Container $container)
+    public function __construct(EntityManager $em)
     {
-        parent::__construct($container);
-
-        $this->em         = $this->getEntityManager();
-        $this->repository = $this->em->getRepository('KayueWordpressBundle:Post');
-        $this->postMetaManager = new PostMetaManager($container);
+        $this->em         = $em;
+        $this->repository = $em->getRepository('KayueWordpressBundle:Post');
+        $this->postMetaManager = new PostMetaManager($em);
     }
 
     /**
@@ -49,7 +46,23 @@ class AttachmentManager extends AbstractManager implements AttachmentManagerInte
         $result = array();
         /** @var $post Post */
         foreach ($posts as $post) {
-            $result[] = new Attachment($post);
+            /** @var $meta PostMeta */
+            $meta = $this->postMetaManager->findOneMetaBy(array(
+                'post' => $post,
+                'key'  => '_wp_attachment_metadata'
+            ));
+
+            if ($meta) {
+                $rawMeta = $meta->getValue();
+                $attachment = new Attachment($post);
+
+                $attachment->setUrl($rawMeta['file']);
+                if (isset($rawMeta['sizes']['thumbnail'])) {
+                    $attachment->setThumbnailUrl(substr($rawMeta['file'], 0, strrpos($rawMeta['file'], '/') + 1) . $rawMeta['sizes']['thumbnail']['file']);
+                }
+
+                $result[] = $attachment;
+            }
         }
 
         return $result;
@@ -60,14 +73,31 @@ class AttachmentManager extends AbstractManager implements AttachmentManagerInte
      *
      * @return AttachmentInterface
      */
-    public function findOneAttachmentById($id)
+    public function findOneAttachmentById($id, $size )
     {
         $post = $this->repository->findOneBy(array(
             'id'     => $id,
             'type'   => 'attachment',
         ));
 
-        return new Attachment($post);
+        /** @var $meta PostMeta */
+        $meta = $this->postMetaManager->findOneMetaBy(array(
+            'post' => $post,
+            'key'  => '_wp_attachment_metadata'
+        ));
+        //var_dump($id, $size, $meta->getValue());exit;
+        if ($meta) {
+            $rawMeta = $meta->getValue();
+            $attachment = new Attachment($post);
+
+            $attachment->setUrl($rawMeta['file']);
+            if (isset($rawMeta['sizes'][$size])) {
+                $attachment->setThumbnailUrl(substr($rawMeta['file'], 0, strrpos($rawMeta['file'], '/') + 1) . $rawMeta['sizes'][$size]['file']);
+            }
+            return $attachment;
+        }
+
+        return null;
     }
 
     public function getAttachmentOfSize(Attachment $attachment, $size = null)
@@ -108,12 +138,12 @@ class AttachmentManager extends AbstractManager implements AttachmentManagerInte
     }
 
     /**
-     * @param Post  $post
+     * @param $post
      * @param array $size A 2-item array representing width and height in pixels, e.g. array(32,32).
      *
      * @return mixed
      */
-    public function findFeaturedImageByPost(Post $post)
+    public function findFeaturedImageByPost($post, $size)
     {
         $featuredImageId = $this->postMetaManager->findOneMetaBy(array(
             'post' => $post,
@@ -122,6 +152,14 @@ class AttachmentManager extends AbstractManager implements AttachmentManagerInte
 
         if (!$featuredImageId) return null;
 
-        return $this->findOneAttachmentById($featuredImageId->getValue());
+        return $this->findOneAttachmentById($featuredImageId->getValue(), $size);
+    }
+
+    public function findFeaturedVideoByLink($link)
+    {
+        preg_match("/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/", $link, $matches);
+        if (isset($matches[7]) && strlen($matches[7]) == 11)
+            return "http://www.youtube.com/embed/{$matches[7]}?feature=oembed&HD=1;rel=0";
+        return '';
     }
 }

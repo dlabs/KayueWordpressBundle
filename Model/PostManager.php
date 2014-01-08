@@ -4,9 +4,8 @@ namespace Kayue\WordpressBundle\Model;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\DependencyInjection\Container;
 
-class PostManager extends AbstractManager implements PostManagerInterface
+class PostManager implements PostManagerInterface
 {
     /**
      * @var EntityManager
@@ -23,12 +22,10 @@ class PostManager extends AbstractManager implements PostManagerInterface
      *
      * @param EntityManager $em
      */
-    public function __construct(Container $container)
+    public function __construct(EntityManager $em)
     {
-        parent::__construct($container);
-
-        $this->em         = $this->getEntityManager();
-        $this->repository = $this->em->getRepository('KayueWordpressBundle:Post');
+        $this->em         = $em;
+        $this->repository = $em->getRepository('KayueWordpressBundle:Post');
     }
 
     public function findOnePostById($id)

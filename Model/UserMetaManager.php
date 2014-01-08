@@ -4,9 +4,8 @@ namespace Kayue\WordpressBundle\Model;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\DependencyInjection\Container;
 
-class UserMetaManager extends AbstractManager implements UserMetaManagerInterface
+class UserMetaManager implements UserMetaManagerInterface
 {
     /**
      * @var EntityManager
@@ -23,12 +22,10 @@ class UserMetaManager extends AbstractManager implements UserMetaManagerInterfac
      *
      * @param EntityManager     $em
      */
-    public function __construct(Container $container)
+    public function __construct(EntityManager $em)
     {
-        parent::__construct($container);
-
-        $this->em = $this->getEntityManager();
-        $this->repository = $this->em->getRepository('KayueWordpressBundle:UserMeta');
+        $this->em = $em;
+        $this->repository = $em->getRepository('KayueWordpressBundle:UserMeta');
     }
 
     public function addMeta(User $user, UserMeta $meta)

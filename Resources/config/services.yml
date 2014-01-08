@@ -59,37 +59,37 @@ services:
     kayue_wordpress.comment.manager:
         class: Kayue\WordpressBundle\Model\CommentManager
         arguments:
-            - @service_container
+            - @doctrine.orm.wp_entity_manager
 
     kayue_wordpress.option.manager:
         class: Kayue\WordpressBundle\Model\OptionManager
         arguments:
-            - @service_container
+            - @doctrine.orm.wp_entity_manager
 
     kayue_wordpress.term.manager:
         class: Kayue\WordpressBundle\Model\TermManager
         arguments:
-            - @service_container
+            - @doctrine.orm.wp_entity_manager
 
     kayue_wordpress.attachment.manager:
         class: Kayue\WordpressBundle\Model\AttachmentManager
         arguments:
-            - @service_container
+            - @doctrine.orm.wp_entity_manager
 
     kayue_wordpress.post.manager:
         class: Kayue\WordpressBundle\Model\PostManager
         arguments:
-            - @service_container
+            - @doctrine.orm.wp_entity_manager
 
     kayue_wordpress.post_meta.manager:
         class: Kayue\WordpressBundle\Model\PostMetaManager
         arguments:
-            - @service_container
+            - @doctrine.orm.wp_entity_manager
 
     kayue_wordpress.user_meta.manager:
         class: Kayue\WordpressBundle\Model\UserMetaManager
         arguments:
-            - @service_container
+            - @doctrine.orm.wp_entity_manager
 
     kayue_wordpress.twig.wordpress:
         class: Kayue\WordpressBundle\Twig\Extension\WordpressExtension

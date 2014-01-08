@@ -5,18 +5,19 @@ namespace Kayue\WordpressBundle\Model;
 class Attachment extends Post implements AttachmentInterface
 {
     protected $post;
-    protected $metadata;
     protected $url;
+    protected $metadata;
     protected $thumbnailUrl;
+    protected $mimeType;
 
     public function __construct(Post $post)
     {
-        $this->metadata = $post->getMetas()
-            ->filter(function (PostMeta $meta) {
-                return '_wp_attachment_metadata' == $meta->getKey();
-            })
-            ->first()
-        ;
+        $this->post = $post;
+    }
+
+    public function setMetadata($metadata)
+    {
+        $this->metadata = $metadata;
     }
 
     public function getMetadata()
@@ -24,15 +25,24 @@ class Attachment extends Post implements AttachmentInterface
         return $this->metadata;
     }
 
-    public function getThumbnailUrl($size = 'post-thumbnail')
+    public function setMimeType($mimeType)
     {
-        $rawMetadata = $this->metadata->getValue();
+        $this->mimeType = $mimeType;
+    }
 
-        if (isset($rawMetadata['sizes'][$size])) {
-            return dirname($rawMetadata['file']) . '/' . $rawMetadata['sizes'][$size]['file'];
-        }
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
 
-        return null;
+    public function setThumbnailUrl($thumbnail)
+    {
+        $this->thumbnailUrl = $thumbnail;
+    }
+
+    public function getThumbnailUrl($size = null)
+    {
+        return $this->thumbnailUrl;
     }
 
     public function setUrl($url)
