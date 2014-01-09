@@ -137,23 +137,4 @@ class AttachmentManager implements AttachmentManagerInterface
 
         return $this->findOneAttachmentById($featuredImageId->getValue());
     }
-//    public function findFeaturedImageByPost($post, $size)
-//    {
-//        $featuredImageId = $this->postMetaManager->findOneMetaBy(array(
-//            'post' => $post,
-//            'key'  => '_thumbnail_id'
-//        ));
-//
-//        if (!$featuredImageId) return null;
-//
-//        return $this->findOneAttachmentById($featuredImageId->getValue(), $size);
-//    }
-
-//    public function findFeaturedVideoByLink($link)
-//    {
-//        preg_match("/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/", $link, $matches);
-//        if (isset($matches[7]) && strlen($matches[7]) == 11)
-//            return "http://www.youtube.com/embed/{$matches[7]}?feature=oembed&HD=1;rel=0";
-//        return '';
-//    }
 }
