@@ -5,7 +5,7 @@ namespace Kayue\WordpressBundle\Model;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 
-class AttachmentManager //implements AttachmentManagerInterface
+class AttachmentManager implements AttachmentManagerInterface
 {
     /**
      * @var EntityManager
@@ -73,31 +73,14 @@ class AttachmentManager //implements AttachmentManagerInterface
      *
      * @return AttachmentInterface
      */
-    public function findOneAttachmentById($id, $size )
+    public function findOneAttachmentById($id)
     {
         $post = $this->repository->findOneBy(array(
-            'id'     => $id,
-            'type'   => 'attachment',
+            'id' => $id,
+            'type' => 'attachment',
         ));
 
-        /** @var $meta PostMeta */
-        $meta = $this->postMetaManager->findOneMetaBy(array(
-            'post' => $post,
-            'key'  => '_wp_attachment_metadata'
-        ));
-        //var_dump($id, $size, $meta->getValue());exit;
-        if ($meta) {
-            $rawMeta = $meta->getValue();
-            $attachment = new Attachment($post);
-
-            $attachment->setUrl($rawMeta['file']);
-            if (isset($rawMeta['sizes'][$size])) {
-                $attachment->setThumbnailUrl(substr($rawMeta['file'], 0, strrpos($rawMeta['file'], '/') + 1) . $rawMeta['sizes'][$size]['file']);
-            }
-            return $attachment;
-        }
-
-        return null;
+        return new Attachment($post);
     }
 
     public function getAttachmentOfSize(Attachment $attachment, $size = null)
@@ -143,23 +126,34 @@ class AttachmentManager //implements AttachmentManagerInterface
      *
      * @return mixed
      */
-    public function findFeaturedImageByPost($post, $size)
+    public function findFeaturedImageByPost(Post $post)
     {
         $featuredImageId = $this->postMetaManager->findOneMetaBy(array(
             'post' => $post,
-            'key'  => '_thumbnail_id'
+            'key' => '_thumbnail_id'
         ));
 
         if (!$featuredImageId) return null;
 
-        return $this->findOneAttachmentById($featuredImageId->getValue(), $size);
+        return $this->findOneAttachmentById($featuredImageId->getValue());
     }
+//    public function findFeaturedImageByPost($post, $size)
+//    {
+//        $featuredImageId = $this->postMetaManager->findOneMetaBy(array(
+//            'post' => $post,
+//            'key'  => '_thumbnail_id'
+//        ));
+//
+//        if (!$featuredImageId) return null;
+//
+//        return $this->findOneAttachmentById($featuredImageId->getValue(), $size);
+//    }
 
-    public function findFeaturedVideoByLink($link)
-    {
-        preg_match("/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/", $link, $matches);
-        if (isset($matches[7]) && strlen($matches[7]) == 11)
-            return "http://www.youtube.com/embed/{$matches[7]}?feature=oembed&HD=1;rel=0";
-        return '';
-    }
+//    public function findFeaturedVideoByLink($link)
+//    {
+//        preg_match("/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/", $link, $matches);
+//        if (isset($matches[7]) && strlen($matches[7]) == 11)
+//            return "http://www.youtube.com/embed/{$matches[7]}?feature=oembed&HD=1;rel=0";
+//        return '';
+//    }
 }
