@@ -1,3 +1,0 @@
-kayue_wordpress_homepage:
-    pattern:  /hello/{name}
-    defaults: { _controller: KayueWordpressBundle:Default:index }
