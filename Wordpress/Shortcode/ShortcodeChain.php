@@ -9,9 +9,9 @@ class ShortcodeChain
      */
     protected $shortcodes = array();
 
-    public function __construct()
+    public function __construct($shorcodes = array())
     {
-        $this->shortcodes = array();
+        $this->shortcodes = $shorcodes;
     }
 
     public function addShortcode(ShortcodeInterface $shortcode)
@@ -152,4 +152,43 @@ class ShortcodeChain
 
         return $atts;
     }
+
+    /**
+     * Remove all shortcode tags from the given content.
+     *
+     * @since 2.5
+     * @uses $shortcode_tags
+     *
+     * @param string $content Content to remove shortcode tags.
+     * @return string Content without shortcode tags.
+     */
+    public function strip_shortcodes( $content ) {
+
+        if (empty($this->shortcodes) || !is_array($this->shortcodes))
+            return $content;
+
+        $pattern = $this->getShortcodeRegex();
+
+        return preg_replace_callback( "/$pattern/s", 'self::strip_shortcode_tag', $content );
+    }
+
+    public function strip_shortcode_tag( $m ) {
+        // allow [[foo]] syntax for escaping a tag
+        if ( $m[1] == '[' && $m[6] == ']' ) {
+            return substr($m[0], 1, -1);
+        }
+
+        return $m[1] . $m[6];
+    }
+
+    public function limit_words($words, $max_words, $append = '') {
+
+        $phrase_array = explode(' ',$words);
+
+        if(count($phrase_array) > $max_words && $max_words > 0)
+            $words = implode(' ', array_slice($phrase_array, 0, $max_words)).$append;
+
+        return $words;
+    }
+
 }
